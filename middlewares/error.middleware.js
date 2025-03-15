@@ -4,7 +4,7 @@ const errorMiddleware = (err, req, res, next) => {
 
     error.message = err.message;
 
-    console.log(err);
+    console.error(err);
 
     // Mongoose bad ObjectId
     if (err.name === "CastError") {
@@ -22,19 +22,17 @@ const errorMiddleware = (err, req, res, next) => {
 
     // Mongoose validation error
     if (err.name === "ValidationError") {
-      const message = Object.values(err.errors).map((val) => err.message);
+      const message = Object.values(err.errors).map((val) => val.message);
       error = new Error(message.join(", "));
       error.statusCode = 400;
     }
 
-    res.status(error.statusCode || 500).json({
-      success: false,
-      error: error.message || "Server Error",
-    });
+    res
+      .status(error.statusCode || 500)
+      .json({ success: false, error: error.message || "Server Error" });
   } catch (error) {
     next(error);
   }
 };
-
 
 export default errorMiddleware;
